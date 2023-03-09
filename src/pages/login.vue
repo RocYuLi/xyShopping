@@ -49,13 +49,13 @@
   </el-row>
 </template>
 <script setup>
-import { reactive, ref } from "vue";
-import { login,getinfo } from "~/api/manager.js";
-import { ElNotification } from "element-plus";
-import { useRouter } from "vue-router"
-import { useCookies } from '@vueuse/integrations/useCookies'
+import { reactive, ref ,onMounted,onBeforeUnmount} from "vue";
+import { toast } from "~/composables/util.js";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
-const router = useRouter()
+const router = useRouter();
+const store = useStore();
 const form = reactive({
   username: "",
   password: "",
@@ -80,43 +80,38 @@ const rules = {
 };
 
 const formRef = ref(null);
-const loading = ref(false)
+const loading = ref(false);
 
 const onSubmit = () => {
   formRef.value.validate((valid) => {
     if (!valid) {
       return false;
     }
-    console.log("验证通过!");
     loading.value = true;
-    login(form.username, form.password)
+    store.dispatch("login",  form )
       .then((res) => {
-        console.log(res);
-        //提示成功
-        ElNotification({
-            message: "登陆成功",
-            type: "success",
-            duration:3000
-          });
-        //存储token和用户信息
-        const cookie = useCookies()
-        cookie.set("admin-token",res.token)
-        
-        //获取用户相关信息
-        getinfo().then(res=>{
-          console.log(res)
-        }).catch(err=>{
-          console.log(err)
-        })
-
-        //跳转后台首页
-        router.push("/")
+        toast("登陆成功");
+        router.push("/");
       })
- .finally(()=>{
-      loading.value = false;
-    })
-  })
+      .finally(() => {
+        loading.value = false;
+      });
+  });
 };
+
+//监听回车事件
+function onkeyUp(e){
+  if(e.key == "Enter") {onSubmit()}
+}
+
+
+//添加键盘监听
+onMounted(()=>{
+  document.addEventListener("keyup",onkeyUp)
+})
+onBeforeUnmount(()=>{
+  document.removeEventListener("keyup",onkeyUp)
+})
 </script>
 <style scoped>
 .login-container {

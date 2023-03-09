@@ -6,3 +6,7 @@ export function login(username,password){
  export function getinfo(){
   return axios.post("/admin/getinfo") //token已被放在请求拦截器的请求头中，无需再传
  } 
+
+ export function logout(){
+  return axios.post("/admin/logout")
+ }
