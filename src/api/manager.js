@@ -10,3 +10,7 @@ export function login(username,password){
  export function logout(){
   return axios.post("/admin/logout")
  }
+
+ export function updatepassword(data){
+  return axios.post("/admin/updatepassword",data)
+ }
